@@ -314,7 +314,7 @@ add_server(struct manager_ctx *manager, struct server *server)
     char *cmd = construct_command_line(manager, server);
 	int ret = system(cmd);
 	LOGE("%s ret:%d",cmd,ret);
-    return ret
+    return ret;
 }
 
 static void
