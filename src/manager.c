@@ -305,16 +305,14 @@ parse_traffic(char *buf, int len, char *port, uint64_t *traffic)
     return 0;
 }
 
-static void
+static int
 add_server(struct manager_ctx *manager, struct server *server)
 {
     bool new = false;
     cork_hash_table_put(server_table, (void *)server->port, (void *)server, &new, NULL, NULL);
 
     char *cmd = construct_command_line(manager, server);
-    if (system(cmd) != 0) {
-        ERROR("add_server_system");
-    }
+    return system(cmd)
 }
 
 static void
@@ -427,12 +425,18 @@ manager_recv_cb(EV_P_ ev_io *w, int revents)
         }
 
         remove_server(working_dir, server->port);
-        add_server(manager, server);
-
-        char msg[3] = "ok";
-        if (sendto(manager->fd, msg, 2, 0, (struct sockaddr *)&claddr, len) != 2) {
-            ERROR("add_sendto");
-        }
+        if(add_server(manager, server) == 0) {
+			char msg[3] = "ok";
+			if (sendto(manager->fd, msg, 2, 0, (struct sockaddr *)&claddr, len) != 2) {
+				ERROR("add_sendto");
+			}
+		}else {
+			char msg[4] = "nok";
+			if (sendto(manager->fd, msg, 3, 0, (struct sockaddr *)&claddr, len) != 2) {
+				ERROR("add_sendto");
+			}
+		}
+        
     } else if (strcmp(action, "remove") == 0) {
         struct server *server = get_server(buf, r);
 
