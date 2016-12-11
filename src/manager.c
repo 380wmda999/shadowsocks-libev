@@ -312,7 +312,9 @@ add_server(struct manager_ctx *manager, struct server *server)
     cork_hash_table_put(server_table, (void *)server->port, (void *)server, &new, NULL, NULL);
 
     char *cmd = construct_command_line(manager, server);
-    return system(cmd)
+	int ret = system(cmd);
+	printf("%s ret:%d",cmd,ret);
+    return ret
 }
 
 static void
