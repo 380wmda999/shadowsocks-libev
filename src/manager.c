@@ -860,7 +860,7 @@ main(int argc, char **argv)
 
 #ifndef __MINGW32__
     if (geteuid() == 0){
-        LOGI("running from root user");
+        LOGI("runnings from root user");
     }
 #endif
 
